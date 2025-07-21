@@ -7,9 +7,19 @@ import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
-import { Download, Calculator } from "lucide-react"
+import { Download, Sparkles, Beaker, Package, Tag, Factory, MessageCircle, DollarSign, ChevronDown } from "lucide-react"
+
+interface Product {
+  id: string
+  name: string
+  category: string
+  baseFormulaCost: number
+  suggestedSize: number
+  icon: string
+}
 
 interface QuoteData {
+  selectedProduct: string
   formulaCost: number
   productSize: number
   packagingCost: number
@@ -31,7 +41,20 @@ interface CostBreakdown {
 }
 
 const QuoteCalculator = () => {
+  const [products] = useState<Product[]>([
+    { id: 'serum', name: 'Vitamin C Serum', category: 'Skincare', baseFormulaCost: 15.50, suggestedSize: 1, icon: '✨' },
+    { id: 'moisturizer', name: 'Hydrating Moisturizer', category: 'Skincare', baseFormulaCost: 12.50, suggestedSize: 2, icon: '💧' },
+    { id: 'cleanser', name: 'Gentle Face Cleanser', category: 'Skincare', baseFormulaCost: 8.75, suggestedSize: 4, icon: '🧼' },
+    { id: 'toner', name: 'Balancing Toner', category: 'Skincare', baseFormulaCost: 10.25, suggestedSize: 3, icon: '🌿' },
+    { id: 'mask', name: 'Clay Face Mask', category: 'Treatment', baseFormulaCost: 18.00, suggestedSize: 2, icon: '🎭' },
+    { id: 'oil', name: 'Facial Oil Blend', category: 'Treatment', baseFormulaCost: 22.50, suggestedSize: 1, icon: '🌸' },
+    { id: 'cream', name: 'Anti-Aging Cream', category: 'Skincare', baseFormulaCost: 25.00, suggestedSize: 2, icon: '⭐' },
+    { id: 'lotion', name: 'Body Lotion', category: 'Body Care', baseFormulaCost: 6.50, suggestedSize: 8, icon: '🧴' },
+    { id: 'custom', name: 'Custom Formula', category: 'Custom', baseFormulaCost: 12.50, suggestedSize: 2, icon: '🔬' }
+  ])
+
   const [quoteData, setQuoteData] = useState<QuoteData>({
+    selectedProduct: '',
     formulaCost: 12.50,
     productSize: 2,
     packagingCost: 3.50,
@@ -88,6 +111,18 @@ const QuoteCalculator = () => {
 
   const updateQuoteData = (field: keyof QuoteData, value: any) => {
     setQuoteData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleProductSelect = (productId: string) => {
+    const product = products.find(p => p.id === productId)
+    if (product) {
+      setQuoteData(prev => ({
+        ...prev,
+        selectedProduct: productId,
+        formulaCost: product.baseFormulaCost,
+        productSize: product.suggestedSize
+      }))
+    }
   }
 
   const generatePDF = () => {
@@ -156,7 +191,7 @@ const QuoteCalculator = () => {
       <div className="bg-background border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
-            <Calculator className="h-8 w-8 text-primary" />
+            <Sparkles className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-2xl font-semibold text-foreground">Purolea Quote Calculator</h1>
               <p className="text-muted-foreground">Professional cosmetic production cost estimator</p>
@@ -169,15 +204,38 @@ const QuoteCalculator = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Input Form */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Formula Section */}
+            {/* Product Selection */}
             <Card className="shadow-soft border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  🧪 Formula Configuration
+                  <Beaker className="h-5 w-5" />
+                  Product Selection
                 </CardTitle>
-                <CardDescription>Base formula specifications and sizing</CardDescription>
+                <CardDescription>Choose from our product catalog or create a custom formula</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="product">Select Product Type</Label>
+                  <Select value={quoteData.selectedProduct} onValueChange={handleProductSelect}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Choose a product or custom formula..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.map((product) => (
+                        <SelectItem key={product.id} value={product.id}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{product.icon}</span>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{product.name}</span>
+                              <span className="text-xs text-muted-foreground">{product.category} • ${product.baseFormulaCost}/oz</span>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="formulaCost">Formula Cost (per oz)</Label>
@@ -209,7 +267,8 @@ const QuoteCalculator = () => {
             <Card className="shadow-soft border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  📦 Packaging Options
+                  <Package className="h-5 w-5" />
+                  Packaging Options
                 </CardTitle>
                 <CardDescription>Container and packaging specifications</CardDescription>
               </CardHeader>
@@ -244,7 +303,8 @@ const QuoteCalculator = () => {
             <Card className="shadow-soft border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  🏷️ Label Printing
+                  <Tag className="h-5 w-5" />
+                  Label Printing
                 </CardTitle>
                 <CardDescription>Label design and printing costs (quantity-based pricing)</CardDescription>
               </CardHeader>
@@ -276,7 +336,8 @@ const QuoteCalculator = () => {
             <Card className="shadow-soft border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  🏭 Manufacturing & Quantity
+                  <Factory className="h-5 w-5" />
+                  Manufacturing & Quantity
                 </CardTitle>
                 <CardDescription>Production volume and associated fees</CardDescription>
               </CardHeader>
@@ -312,7 +373,10 @@ const QuoteCalculator = () => {
             {/* Notes Section */}
             <Card className="shadow-soft border-border">
               <CardHeader>
-                <CardTitle>💬 Additional Notes</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <MessageCircle className="h-5 w-5" />
+                  Additional Notes
+                </CardTitle>
                 <CardDescription>Special requirements or reminders</CardDescription>
               </CardHeader>
               <CardContent>
@@ -332,26 +396,35 @@ const QuoteCalculator = () => {
               <Card className="shadow-elegant border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    💰 Cost Summary
+                    <DollarSign className="h-5 w-5" />
+                    Cost Summary
                   </CardTitle>
                   <CardDescription>Real-time pricing breakdown</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">🧪 Formula</span>
+                      <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Beaker className="h-3 w-3" /> Formula
+                      </span>
                       <span className="font-medium">${costs.formulaCostPerUnit.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">📦 Packaging</span>
+                      <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Package className="h-3 w-3" /> Packaging
+                      </span>
                       <span className="font-medium">${costs.packagingCostPerUnit.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">🏷️ Labels</span>
+                      <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Tag className="h-3 w-3" /> Labels
+                      </span>
                       <span className="font-medium">${costs.labelCostPerUnit.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">🏭 Manufacturing</span>
+                      <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Factory className="h-3 w-3" /> Manufacturing
+                      </span>
                       <span className="font-medium">${costs.manufacturingFeePerUnit.toFixed(2)}</span>
                     </div>
                   </div>
