@@ -186,47 +186,56 @@ const QuoteCalculator = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-soft font-elegant">
-      {/* Header */}
+    <div className="bg-background font-elegant min-h-[600px]">
+      {/* Compact Header */}
       <div className="bg-background border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <Sparkles className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground">Purolea Quote Calculator</h1>
-              <p className="text-muted-foreground">Professional cosmetic production cost estimator</p>
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-6 w-6 text-primary" />
+              <div>
+                <h1 className="text-lg font-semibold text-foreground">Purolea Quote Calculator</h1>
+                <p className="text-sm text-muted-foreground">Professional cosmetic production cost estimator</p>
+              </div>
             </div>
+            <Button 
+              onClick={generatePDF} 
+              variant="elegant" 
+              size="sm"
+            >
+              <Download className="h-4 w-4" />
+              Export PDF
+            </Button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="px-4 py-4">
+        <div className="grid lg:grid-cols-2 gap-6">
           {/* Input Form */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-4">
             {/* Product Selection */}
             <Card className="shadow-soft border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Beaker className="h-5 w-5" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Beaker className="h-4 w-4" />
                   Product Selection
                 </CardTitle>
-                <CardDescription>Choose from our product catalog or create a custom formula</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div>
-                  <Label htmlFor="product">Select Product Type</Label>
+                  <Label htmlFor="product" className="text-sm">Select Product Type</Label>
                   <Select value={quoteData.selectedProduct} onValueChange={handleProductSelect}>
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Choose a product or custom formula..." />
+                      <SelectValue placeholder="Choose a product..." />
                     </SelectTrigger>
                     <SelectContent>
                       {products.map((product) => (
                         <SelectItem key={product.id} value={product.id}>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{product.icon}</span>
+                            <span>{product.icon}</span>
                             <div className="flex flex-col">
-                              <span className="font-medium">{product.name}</span>
+                              <span className="font-medium text-sm">{product.name}</span>
                               <span className="text-xs text-muted-foreground">{product.category} • ${product.baseFormulaCost}/oz</span>
                             </div>
                           </div>
@@ -236,9 +245,9 @@ const QuoteCalculator = () => {
                   </Select>
                 </div>
                 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor="formulaCost">Formula Cost (per oz)</Label>
+                    <Label htmlFor="formulaCost" className="text-sm">Formula Cost (per oz)</Label>
                     <Input
                       id="formulaCost"
                       type="number"
@@ -249,7 +258,7 @@ const QuoteCalculator = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="productSize">Product Size (oz)</Label>
+                    <Label htmlFor="productSize" className="text-sm">Product Size (oz)</Label>
                     <Input
                       id="productSize"
                       type="number"
@@ -263,208 +272,175 @@ const QuoteCalculator = () => {
               </CardContent>
             </Card>
 
-            {/* Packaging Section */}
-            <Card className="shadow-soft border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Package className="h-5 w-5" />
-                  Packaging Options
-                </CardTitle>
-                <CardDescription>Container and packaging specifications</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Client Provides Packaging</Label>
-                    <p className="text-sm text-muted-foreground">Toggle if client supplies their own containers</p>
-                  </div>
-                  <Switch
-                    checked={quoteData.isClientPackaging}
-                    onCheckedChange={(checked) => updateQuoteData('isClientPackaging', checked)}
-                  />
-                </div>
-                {!quoteData.isClientPackaging && (
-                  <div>
-                    <Label htmlFor="packagingCost">Packaging Cost (per unit)</Label>
-                    <Input
-                      id="packagingCost"
-                      type="number"
-                      step="0.01"
-                      value={quoteData.packagingCost}
-                      onChange={(e) => updateQuoteData('packagingCost', parseFloat(e.target.value) || 0)}
-                      className="mt-1"
+            {/* Packaging & Manufacturing Row */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* Packaging Section */}
+              <Card className="shadow-soft border-border">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Package className="h-4 w-4" />
+                    Packaging
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Client Provides</Label>
+                    <Switch
+                      checked={quoteData.isClientPackaging}
+                      onCheckedChange={(checked) => updateQuoteData('isClientPackaging', checked)}
                     />
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  {!quoteData.isClientPackaging && (
+                    <div>
+                      <Label htmlFor="packagingCost" className="text-sm">Cost (per unit)</Label>
+                      <Input
+                        id="packagingCost"
+                        type="number"
+                        step="0.01"
+                        value={quoteData.packagingCost}
+                        onChange={(e) => updateQuoteData('packagingCost', parseFloat(e.target.value) || 0)}
+                        className="mt-1"
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-            {/* Label Section */}
-            <Card className="shadow-soft border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Tag className="h-5 w-5" />
-                  Label Printing
-                </CardTitle>
-                <CardDescription>Label design and printing costs (quantity-based pricing)</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Client Provides Labels</Label>
-                    <p className="text-sm text-muted-foreground">Toggle if client supplies pre-printed labels</p>
-                  </div>
-                  <Switch
-                    checked={quoteData.isClientLabel}
-                    onCheckedChange={(checked) => updateQuoteData('isClientLabel', checked)}
-                  />
-                </div>
-                {!quoteData.isClientLabel && (
-                  <div className="bg-muted p-4 rounded-lg">
-                    <p className="text-sm font-medium">Quantity-Based Pricing:</p>
-                    <ul className="text-sm text-muted-foreground mt-2 space-y-1">
-                      <li>• 100-499 units: $0.75 per label</li>
-                      <li>• 500-999 units: $0.65 per label</li>
-                      <li>• 1000+ units: $0.50 per label</li>
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Manufacturing Section */}
-            <Card className="shadow-soft border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Factory className="h-5 w-5" />
-                  Manufacturing & Quantity
-                </CardTitle>
-                <CardDescription>Production volume and associated fees</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="quantity">Production Quantity</Label>
-                  <Select value={quoteData.quantity.toString()} onValueChange={(value) => updateQuoteData('quantity', parseInt(value))}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="100">100 units</SelectItem>
-                      <SelectItem value="250">250 units</SelectItem>
-                      <SelectItem value="500">500 units</SelectItem>
-                      <SelectItem value="750">750 units</SelectItem>
-                      <SelectItem value="1000">1000 units</SelectItem>
-                      <SelectItem value="1500">1500 units</SelectItem>
-                      <SelectItem value="2000">2000 units</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm font-medium">Manufacturing Fee Structure:</p>
-                  <ul className="text-sm text-muted-foreground mt-2 space-y-1">
-                    <li>• 100-499 units: $4.00 per unit</li>
-                    <li>• 500-999 units: $3.00 per unit</li>
-                    <li>• 1000+ units: $2.50 per unit</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Notes Section */}
-            <Card className="shadow-soft border-border">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <MessageCircle className="h-5 w-5" />
-                  Additional Notes
-                </CardTitle>
-                <CardDescription>Special requirements or reminders</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  placeholder="Add any special requirements, lead time notes, or client-specific details..."
-                  value={quoteData.notes}
-                  onChange={(e) => updateQuoteData('notes', e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Cost Summary - Sticky on Desktop */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <Card className="shadow-elegant border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5" />
-                    Cost Summary
+              {/* Manufacturing Section */}
+              <Card className="shadow-soft border-border">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Factory className="h-4 w-4" />
+                    Manufacturing
                   </CardTitle>
-                  <CardDescription>Real-time pricing breakdown</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Beaker className="h-3 w-3" /> Formula
-                      </span>
-                      <span className="font-medium">${costs.formulaCostPerUnit.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Package className="h-3 w-3" /> Packaging
-                      </span>
-                      <span className="font-medium">${costs.packagingCostPerUnit.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Tag className="h-3 w-3" /> Labels
-                      </span>
-                      <span className="font-medium">${costs.labelCostPerUnit.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Factory className="h-3 w-3" /> Manufacturing
-                      </span>
-                      <span className="font-medium">${costs.manufacturingFeePerUnit.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-lg font-semibold">
-                      <span>Cost per Unit</span>
-                      <span className="text-primary">${costs.totalUnitCost.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm text-muted-foreground">
-                      <span>× {quoteData.quantity} units</span>
-                      <span></span>
-                    </div>
-                    <div className="flex justify-between items-center text-xl font-bold bg-primary-soft p-3 rounded-lg">
-                      <span>Total Project</span>
-                      <span className="text-primary">${costs.totalProjectCost.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 space-y-3">
-                    <Button 
-                      onClick={generatePDF} 
-                      variant="elegant" 
-                      className="w-full"
-                      size="lg"
-                    >
-                      <Download className="h-4 w-4" />
-                      Export Quote PDF
-                    </Button>
-                    
-                    <div className="text-xs text-muted-foreground text-center space-y-1">
-                      <p>🕒 Lead time: 3–4 weeks</p>
-                      <p>📋 Quote valid for 30 days</p>
-                    </div>
+                <CardContent className="space-y-3">
+                  <div>
+                    <Label htmlFor="quantity" className="text-sm">Production Quantity</Label>
+                    <Select value={quoteData.quantity.toString()} onValueChange={(value) => updateQuoteData('quantity', parseInt(value))}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="100">100 units</SelectItem>
+                        <SelectItem value="250">250 units</SelectItem>
+                        <SelectItem value="500">500 units</SelectItem>
+                        <SelectItem value="750">750 units</SelectItem>
+                        <SelectItem value="1000">1000 units</SelectItem>
+                        <SelectItem value="1500">1500 units</SelectItem>
+                        <SelectItem value="2000">2000 units</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Labels & Notes Row */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* Label Section */}
+              <Card className="shadow-soft border-border">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Tag className="h-4 w-4" />
+                    Labels
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Client Provides</Label>
+                    <Switch
+                      checked={quoteData.isClientLabel}
+                      onCheckedChange={(checked) => updateQuoteData('isClientLabel', checked)}
+                    />
+                  </div>
+                  {!quoteData.isClientLabel && (
+                    <div className="bg-muted p-2 rounded text-xs">
+                      <p>Qty-based: $0.75 → $0.65 → $0.50</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Notes Section */}
+              <Card className="shadow-soft border-border">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <MessageCircle className="h-4 w-4" />
+                    Notes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    placeholder="Special requirements..."
+                    value={quoteData.notes}
+                    onChange={(e) => updateQuoteData('notes', e.target.value)}
+                    className="min-h-[60px] text-sm"
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Cost Summary */}
+          <div>
+            <Card className="shadow-elegant border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <DollarSign className="h-4 w-4" />
+                  Cost Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Beaker className="h-3 w-3" /> Formula
+                    </span>
+                    <span className="font-medium">${costs.formulaCostPerUnit.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Package className="h-3 w-3" /> Packaging
+                    </span>
+                    <span className="font-medium">${costs.packagingCostPerUnit.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Tag className="h-3 w-3" /> Labels
+                    </span>
+                    <span className="font-medium">${costs.labelCostPerUnit.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Factory className="h-3 w-3" /> Manufacturing
+                    </span>
+                    <span className="font-medium">${costs.manufacturingFeePerUnit.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center font-semibold">
+                    <span>Cost per Unit</span>
+                    <span className="text-primary">${costs.totalUnitCost.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <span>× {quoteData.quantity} units</span>
+                  </div>
+                  <div className="flex justify-between items-center text-lg font-bold bg-primary-soft p-3 rounded-lg">
+                    <span>Total Project</span>
+                    <span className="text-primary">${costs.totalProjectCost.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-muted-foreground text-center space-y-1 pt-2">
+                  <p>🕒 Lead time: 3–4 weeks</p>
+                  <p>📋 Quote valid for 30 days</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
